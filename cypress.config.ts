@@ -74,17 +74,11 @@ function getExcludeSpecPattern() {
 }
 
 function resetDb() {
-  console.log(`Resetting database...`);
-
   try {
     execSync('npm run supabase:db:reset');
 
-    console.log(`DB reset successful`);
-
     return true;
-  } catch (error) {
-    console.error(`DB reset failed`, error);
-  }
+  } catch (error) {}
 
   return false;
 }
@@ -132,15 +126,11 @@ async function confirmUserEmail(email: string) {
     throw new Error(`User ${email} not found: ${JSON.stringify(data.users)}.`);
   }
 
-  console.log(`Confirming email for user ${user.email}...`);
-
   await client.auth.admin
     .updateUserById(user.id, {
       email_confirm: true,
     })
-    .then(() => {
-      console.log(`User email confirmed`);
-    })
+    .then(() => {})
     .catch(console.error);
 
   return true;

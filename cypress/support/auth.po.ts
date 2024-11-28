@@ -51,8 +51,6 @@ const authPageObject = {
     const message = await client.auth
       .signInWithPassword({ email, password })
       .then(({ error, data }) => {
-        console.log({ error, data });
-
         if (error) {
           return error.message;
         }
