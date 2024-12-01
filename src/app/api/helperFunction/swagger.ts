@@ -11,6 +11,12 @@ const swaggerOptions = {
       {
         url: 'http://localhost:3000/api',
       },
+      {
+        url: 'http://{{changeable}}',
+      },
+      {
+        url: 'http://localhost:3000',
+      },
     ],
   },
   apis: ['./src/app/api/**/*.ts'], // Path to your API route files
