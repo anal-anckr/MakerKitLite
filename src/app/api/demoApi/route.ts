@@ -5,6 +5,15 @@ import {
   successResponse,
 } from '../helperFunction/responseHandler';
 
+/**
+ * @swagger
+ * /demoApi:
+ *   get:
+ *     description: Get an example response
+ *     responses:
+ *       200:
+ *         description: Successful response
+ */
 export async function GET(req: NextRequest) {
   try {
     const logger = getLogger();
