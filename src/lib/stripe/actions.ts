@@ -18,7 +18,7 @@ import createBillingPortalSession from '~/lib/stripe/create-billing-portal-sessi
 import { withSession } from '~/core/generic/actions-utils';
 import { getUserSubscription } from '~/lib/subscriptions/queries';
 import getSupabaseServerActionClient from '~/core/supabase/action-client';
-
+const logger = getLogger();
 export const createCheckoutAction = withSession(
   async (_, formData: FormData) => {
     const logger = getLogger();
@@ -60,7 +60,7 @@ export const createCheckoutAction = withSession(
 
     // check if the plan exists in the configuration.
     if (!plan) {
-      console.warn(
+      logger.error(
         `Plan not found for price ID "${priceId}". Did you forget to add it to the configuration? If the Price ID is incorrect, the checkout will be rejected. Please check the Stripe dashboard`,
       );
     }

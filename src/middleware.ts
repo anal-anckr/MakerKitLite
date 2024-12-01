@@ -5,22 +5,29 @@ import HttpStatusCode from '~/core/generic/http-status-code.enum';
 import configuration from '~/configuration';
 import createMiddlewareClient from '~/core/supabase/middleware-client';
 import GlobalRole from '~/core/session/types/global-role';
+import getLogger from './core/logger';
 
 const CSRF_SECRET_COOKIE = 'csrfSecret';
 const NEXT_ACTION_HEADER = 'next-action';
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|locales|assets|api/stripe/webhook).*)',
+    '/((?!_next/static|_next/image|favicon.ico|locales|assets|api/stripe/webhook|api/*).*)',
   ],
 };
+const logger = getLogger();
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
   const csrfResponse = await withCsrfMiddleware(request, response);
   const sessionResponse = await sessionMiddleware(request, csrfResponse);
 
-  return await adminMiddleware(request, sessionResponse);
+  if (request.nextUrl.pathname.startsWith('/api')) {
+    const apiMiddlewareResponse = await apiMiddleware(request, sessionResponse);
+    return apiMiddlewareResponse;
+  } else {
+    return await adminMiddleware(request, sessionResponse);
+  }
 }
 
 async function sessionMiddleware(req: NextRequest, res: NextResponse) {
@@ -92,4 +99,45 @@ async function adminMiddleware(request: NextRequest, response: NextResponse) {
 
   // in all other cases, return the response
   return response;
+}
+async function apiMiddleware(
+  request: NextRequest,
+  sessionResponse: NextResponse,
+) {
+  const supabase = createMiddlewareClient(request, sessionResponse);
+  await adminMiddleware(request, sessionResponse);
+  const cookieHeader = request.headers.get('Cookie');
+
+  // If token is missing, respond with 401 Unauthorized
+  if (!cookieHeader) {
+    return { data: null, error: 'token is Invalid', status: 400 };
+  }
+
+  const cookies = cookieHeader.split('=')[1];
+  if (!cookies) return null;
+
+  const tokenJson = decodeURIComponent(cookies);
+  if (!tokenJson) {
+    return { data: null, error: 'token is Invalid', status: 400 };
+  }
+
+  const tokenArray = tokenJson.split(';');
+
+  const token = JSON.parse(tokenArray[0]).access_token;
+
+  // Verify the token
+  try {
+    const { data: checkUserExist, error } = await supabase.auth.getUser(token);
+    if (error) {
+      return { data: null, error: 'User is Invalid', status: 498 };
+    }
+    return {
+      userId: checkUserExist.user.id,
+      userEmail: checkUserExist.user.email,
+      error: null,
+      status: 200,
+    };
+  } catch (error) {
+    return { data: null, error: 'Unauthorized: Token', status: 401 };
+  }
 }

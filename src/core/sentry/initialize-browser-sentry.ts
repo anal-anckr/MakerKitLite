@@ -1,6 +1,7 @@
 import configuration from '~/configuration';
 import isBrowser from '~/core/generic/is-browser';
-
+import getLogger from '~/core/logger';
+const logger = getLogger();
 let initialized = false;
 
 /**
@@ -35,7 +36,7 @@ async function initializeBrowserSentry() {
 }
 
 function warnSentryNotConfigured() {
-  console.warn(
+  logger.error(
     `Sentry DSN was not provided. Please add a SENTRY_DSN environment variable to enable error tracking.`,
   );
 }

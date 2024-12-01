@@ -7,7 +7,8 @@ import type {
 
 import useSupabase from '~/core/hooks/use-supabase';
 import configuration from '~/configuration';
-
+import getLogger from '~/core/logger';
+const logger = getLogger();
 /**
  * @name useSignInWithOtp
  */
@@ -21,8 +22,8 @@ function useSignInWithOtp() {
       return client.auth.signInWithOtp(credentials).then((result) => {
         if (result.error) {
           if (shouldIgnoreError(result.error)) {
-            console.warn(
-              `Ignoring error during development: ${result.error.message}`
+            logger.error(
+              `Ignoring error during development: ${result.error.message}`,
             );
 
             return {};
@@ -33,7 +34,7 @@ function useSignInWithOtp() {
 
         return result.data;
       });
-    }
+    },
   );
 }
 
@@ -44,7 +45,5 @@ function shouldIgnoreError(error: AuthError) {
 }
 
 function isSmsProviderNotSetupError(error: AuthError) {
-  return (
-    error.message === `Error sending sms: sms Provider could not be found`
-  );
+  return error.message === `Error sending sms: sms Provider could not be found`;
 }

@@ -7,7 +7,8 @@ import configuration from '~/configuration';
 
 import getSupabaseServerComponentClient from '~/core/supabase/server-component-client';
 import verifyRequiresMfa from '~/core/session/utils/check-requires-mfa';
-
+import getLogger from '~/core/logger';
+const logger = getLogger();
 /**
  * @name loadAuthPageData
  * @description This function is responsible for loading the authentication
@@ -28,7 +29,7 @@ const loadAuthPageData = cache(async () => {
   // If the user is logged in and does not require multi-factor authentication,
   // redirect them to the home page.
   if (session && !requiresMultiFactorAuthentication) {
-    console.log(
+    logger.info(
       `User is logged in and does not require multi-factor authentication. Redirecting to home page.`,
     );
 

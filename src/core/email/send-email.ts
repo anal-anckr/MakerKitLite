@@ -1,5 +1,6 @@
 import configuration from '../../configuration';
-
+import getLogger from '~/core/logger';
+const logger = getLogger();
 interface SendEmailParams {
   from: string;
   to: string;
@@ -88,7 +89,7 @@ async function getEtherealMailTransporter() {
 function getMockMailTransporter() {
   return {
     sendMail(params: SendEmailParams) {
-      console.log(
+      logger.info(
         `Using mock email transporter with params`,
         JSON.stringify(params, null, 2),
       );
@@ -103,7 +104,7 @@ async function getEtherealTestAccount() {
   // if we have added an Ethereal account, we reuse these credentials to
   // send the email
   if (user && pass) {
-    console.log(`Sending email with Ethereal test account...`);
+    logger.info(`Sending email with Ethereal test account...`);
 
     return {
       user,
@@ -120,17 +121,17 @@ async function createEtherealTestAccount() {
   const nodemailer = await import('nodemailer');
   const newAccount = await nodemailer.createTestAccount();
 
-  console.warn(`
+  logger.error(`
     Configuration property "emailEtherealTestAccount" was not found! 
     Consider adding a fixed Ethereal account so that you don't need to update the credentials each time you use it.
     To do so, please use the guide at https://makerkit.dev/docs/email
   `);
 
-  console.log(
+  logger.error(
     `Created Ethereal test account: ${JSON.stringify(newAccount, null, 2)}`,
   );
 
-  console.log(`Consider adding these credentials to your configuration file`);
+  logger.error(`Consider adding these credentials to your configuration file`);
 
   return newAccount;
 }
