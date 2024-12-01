@@ -13,7 +13,7 @@ const htmlContent = `
     <script>
         window.onload = function() {
             const ui = SwaggerUIBundle({
-                url: "http://localhost:3000/api/swaggerJsonData", 
+                url: "${process.env.NEXT_PUBLIC_SITE_URL}/api/swaggerJsonData", 
                 dom_id: '#swagger-ui',
             });
         };
